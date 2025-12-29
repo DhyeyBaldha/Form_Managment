@@ -42,9 +42,20 @@ public class Form {
 
     private Boolean isActive;
 
-    private List<Integer> questions;
+    @OneToMany(
+            mappedBy = "form",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    private List<Question> questions;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private String username;
+    private User user;
+
+
+
 
 }

@@ -27,6 +27,7 @@ public class Question {
 
     @Enumerated(EnumType.STRING)
     private AnswerType answerType;
+    private String validationType;
 
     @ElementCollection
     @CollectionTable(
@@ -38,6 +39,8 @@ public class Question {
 
 
     private Boolean required;
-
-    private String formId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "form_id", nullable = false)
+    @JsonIgnore
+    private Form form;
 }

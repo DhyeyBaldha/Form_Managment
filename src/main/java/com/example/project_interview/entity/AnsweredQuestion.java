@@ -1,6 +1,7 @@
 package com.example.project_interview.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.Data;
@@ -19,6 +20,7 @@ public class AnsweredQuestion {
     private Integer questionId;
     private String questionName;
     private String description;
+    private boolean answerRequired;
 
     @ElementCollection
     @CollectionTable(
@@ -28,6 +30,7 @@ public class AnsweredQuestion {
     @Column(name = "answer_value")
     private List<String> answers;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filled_form_id")
     private FilledForm filledForm;

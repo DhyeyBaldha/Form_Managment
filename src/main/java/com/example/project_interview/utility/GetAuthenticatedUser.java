@@ -2,8 +2,8 @@ package com.example.project_interview.utility;
 
 import com.example.project_interview.entity.User;
 import com.example.project_interview.repository.UserRepository;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -14,11 +14,19 @@ public class GetAuthenticatedUser {
     private UserRepository repository;
 
     public User getAuthenticatedUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            return repository.findByUsername(username);
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User is not authenticated");
         }
-        throw new RuntimeException("User is not authenticated");
+
+        String email = authentication.getName();
+
+        return repository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("Authenticated user not found in database"));
     }
+
 }

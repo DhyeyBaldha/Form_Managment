@@ -1,13 +1,19 @@
 package com.example.project_interview.entity;
 
+import com.example.project_interview.dto.LoginDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +23,7 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User  implements UserDetails {
+public class User extends LoginDto implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -32,26 +38,27 @@ public class User  implements UserDetails {
     @Column(unique = true, name = "username")
     private String username;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
     private String password;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "contact no")
     private String contactNo;
 
     @Column(name = "gender")
     private String gender;
 
     @Column(name = "valid from")
-    private Date validFrom;
+    private LocalDate validFrom;
 
     @Column(name = "valid to")
-    private Date validTo;
+    private LocalDate validTo;
 
     @Column(name = "is active")
-    private boolean isActive;
+    @Enumerated(value = EnumType.STRING)
+    private IsActive isActive;
 
     @Column(name = "language")
     private String language;
@@ -59,15 +66,26 @@ public class User  implements UserDetails {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "profile picture")
-    private byte[] profilePicture;
+    @Column(name = "profile_picture",columnDefinition = "TEXT")
+    private String profilePicture;
+
 
     @Enumerated(value = EnumType.STRING)
     private Role role;
 
-    @ElementCollection
-    @Column(name = "formId")
-    private List<String> FormId;
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    @JsonIgnore
+    private List<Form> forms;
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY
+    )
+    @JsonIgnore
+    private List<FilledForm> filledForms;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,19 +96,29 @@ public class User  implements UserDetails {
     public boolean isAccountNonExpired() {
         return true;
     }
-
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
     @Override
     public boolean isEnabled() {
         return true;
     }
+    @JsonIgnore
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @JsonProperty("username")
+    public String getDbUsername() {
+        return username;
+    }
+
+
+
 }

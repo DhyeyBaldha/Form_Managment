@@ -1,6 +1,7 @@
 package com.example.project_interview.Filter;
 
 
+import com.example.project_interview.entity.User;
 import com.example.project_interview.services.JwtService;
 import com.example.project_interview.services.UserDetailsImp;
 import jakarta.servlet.FilterChain;
@@ -35,13 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(7);
-        String username = jwtService.extractUsername(token);
+        String email = jwtService.extractEmail(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = userDetailsImp.loadUserByUsername(username);
-            if (jwtService.isValid(token,userDetails)){
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            UserDetails user = userDetailsImp.loadUserByUsername(email);
+            if (jwtService.isValid(token,user)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,null,userDetails.getAuthorities()
+                        user,null,user.getAuthorities()
                 );
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource()

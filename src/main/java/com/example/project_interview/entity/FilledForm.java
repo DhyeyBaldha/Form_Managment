@@ -1,5 +1,6 @@
 package com.example.project_interview.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,9 +19,14 @@ public class FilledForm {
     private String formId;
     private String formTitle;
     private String description;
-    private String createdBy;
 
-    private Integer userId;
+
+    private String createdBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
     private LocalDate completedDate;
 
     @OneToMany(
